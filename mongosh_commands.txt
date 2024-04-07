@@ -1,0 +1,286 @@
+// Single Object
+db.data.insertOne({name:'avi', age:24})
+
+// Multiple Objects
+
+db.data.insertMany([{name:'avi', age:24},{name:'vinod', age:29}])
+
+// Find objects with Id
+
+db.data.find()
+
+// Range index
+
+db.data.find().limit(1)
+
+// Find name with key:value
+
+db.data.find({'name':'avi'})
+
+// Find Particular name with key:value [It will show very 1st index]
+
+db.data.findOne({'name':'avi'})
+
+
+// Impoprt JSON file without Array
+mongoimport D:\MongoDBThapaTechnical\JSONFiles\products.json -d shop -c products
+
+
+// Impoprt JSON file with Array
+mongoimport  D:\MongoDBThapaTechnical\JSONFiles\sales.json -d shop -c products --jsonArray
+
+// Exports JSON Files
+
+mongoexport -d shop -c sales -o D:\MongoDBThapaTechnical\JSONFiles\salestest.json
+
+
+// Comparison Operator
+
+1) db.products.find({'price': {$eq:89}})
+
+2) db.products.find({'price': {$eq:89}}).count()
+
+3) db.products.find({'price': {$ne:89}}).count()
+
+4) db.products.find({'price': {$gt:47}})
+
+5) db.products.find({'price': {$gte:40}})
+
+6) db.products.find({'price': {$lt:40}})
+
+7) db.products.find({'price': {$lte:40}})
+
+8) db.products.find({'price': {$in:[33,35]}})
+
+
+// Cursors 
+
+1) db.products.find({'price': {$in:[33,35]}}).count()
+
+2) db.products.find({'price': {$in:[33,35]}}).limit(1)
+
+3) db.products.find({'price': {$in:[33,35]}}).limit(2).skip(1)
+
+4) db.products.find({'price': {$in:[33,35]}}).limit(2).sort({'price':1})
+
+5) db.products.find({'price': {$nin:[33,35]}}).limit(2).sort({'price':1})
+
+
+// Logical Operator
+
+1) 
+
+And =>
+
+db.products.find({$and: [{ 'price': { $gt: 25 } },{'quantiy':65}]})
+
+alternative
+
+db.products.find({'price':{$gt:25}, 'quantiy':65})
+
+OR =>
+
+db.products.find({$or: [{ 'price': { $gt: 25 } },{'quantiy':65}]})
+
+
+
+NOR =>
+
+db.products.find({$nor: [{ 'price': { $gt: 25 } },{'quantiy':65}]})
+
+
+Equal To =>
+
+db.products.find({'price':{$eq: 46}}).count()
+
+
+NOT Equal =>
+
+db.products.find({'price':{$ne: 46}}).count()
+
+
+
+
+
+// Expr Operators
+
+1) db.products.find({$expr:{$gt:['price',20]}})
+
+
+Multiply =>
+
+db.products.find({$expr: {$gt: [{$multiply: ['$quantity','$price']},"$targetPrice"]}})
+
+
+
+
+// Element Operator
+
+1) db.products.find({'price':{$exists:true}}).count()
+
+2) db.products.find({'price':{$exists:false}}).count()
+
+3) db.products.find({'price':{$exists:false},'price': {$gt:20}}).count()
+
+
+
+// Find Object By ID
+
+db.products.find({_id: ObjectId('660a8a60f4ee0663186821d9')})
+
+db.products.find({_id: 3})
+
+
+
+// updateOne
+
+1) db.products.updateOne({_id: 3},{$set:{'price':45}})
+
+2) db.products.updateOne({_id: ObjectId('660a8a60f4ee0663186821d9')},{$set:{'name':'avi'}})
+
+db.products.insertOne({fruit:'apple', price:120})
+
+
+// updateMany
+
+
+1) db.products.updateMany({price: 120}, {$set: {price: 130}})
+
+Rename => 
+
+db.products.updateMany({price:130},{$rename: {'fruit':'fruit_name'}})
+
+Add key:value => 
+
+db.products.updateOne({_id: ObjectId('660a8a60f4ee0663186821d9')}, {$set: {'location': 'Dhaka'}})
+
+Remove key:value => 
+
+db.products.updateOne({_id: ObjectId('660a8a60f4ee0663186821d9')}, {$unset: {'location2': 1}}
+
+
+
+
+//Delete ID
+
+db.products.deleteOne({_id: ObjectId('660ab792c8a434b5d19f990b'),})
+
+
+
+// Aggregation Match
+
+1) db.products.aggregate([{$match: {'name':'avi'}}])
+
+2) db.products.aggregate([{$match: {price:{$gt: 40}}}])
+
+
+
+Group Operator => it means that, the id is using how many document
+
+1)
+db.products.aggregate([
+{
+	$group:{
+
+		_id: ObjectId('660ab82fc8a434b5d19f990e'),
+		totalProducts:{$sum:1}
+}
+}
+])
+
+
+
+2)
+db.products.aggregate([
+{
+	$group:{
+
+		_id: ObjectId('660ab82fc8a434b5d19f990e'),
+		totalProducts:{$sum:"$price"}
+}
+}
+])
+
+
+
+
+//Match Operator =>
+
+db.products.aggregate([
+  {
+    $match: {
+      _id: ObjectId('660ab82fc8a434b5d19f990e'),
+    },
+  },
+])
+
+
+
+// Group + MAtch Operator At A Time
+
+db.products.aggregate([
+    {
+        $match: {price: {$gt: 50}}
+    },
+    {
+      $group: {
+        _id: ObjectId('660ab82fc8a434b5d19f990e'),
+        totalProducts: { $sum: "$price" },
+      },
+    },
+  ])
+
+
+// Project Operator =>
+
+db.products.aggregate([
+	
+	{
+$project:
+{
+		price:33,
+		_id:5
+}}
+
+])
+
+// Discount Price
+
+  db.products.aggregate([
+    { $match: { price: { $gt: 1 } } },
+    {
+        $project: {
+            price:1,
+            discountPrice: {$multiply: ['$price', 0.8]}
+        }
+    }
+  ])
+
+
+// Add new color  data with price
+
+db.products.aggregate([
+    { $match: { price: { $gt: 50 } } },
+    {
+        $group: {
+            _id: '$price',
+            allColors: { $push :'$colors'}
+        }
+    }
+  ])
+
+
+// Filter operator. It can filter data from Array
+
+db.col.aggregate([{
+    $project:{
+        name:1,
+        thapaValue: {
+            $filter:{
+                input: '$values',
+                as: 'val',
+                cond: {$gt: ['$$val', 30]}
+            }
+        }
+    }
+}])
